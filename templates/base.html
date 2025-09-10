@@ -1,0 +1,49 @@
+<!-- FILE: templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>OEMS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <nav class="nav">
+    <div class="brand">OEMS</div>
+    {% if session.user %}
+    <ul class="menu">
+      <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+      {% if session.user.role in ['ADMIN','HR'] %}
+      <li><a href="{{ url_for('departments') }}">Departments</a></li>
+      <li><a href="{{ url_for('employees') }}">Employees</a></li>
+      {% endif %}
+      <li><a href="{{ url_for('attendance') }}">Attendance</a></li>
+      <li><a href="{{ url_for('leaves') }}">Leaves</a></li>
+      <li><a href="{{ url_for('payroll_view') }}">Payroll</a></li>
+      {% if session.user.role in ['ADMIN','HR'] %}
+      <li><a href="{{ url_for('reports') }}">Reports</a></li>
+      {% endif %}
+      {% if session.user.role == 'EMPLOYEE' %}
+      <li><a href="{{ url_for('profile') }}">Profile</a></li>
+      {% endif %}
+      <li><a href="{{ url_for('logout') }}" class="logout">Logout</a></li>
+    </ul>
+    {% endif %}
+  </nav>
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="flash-wrap">
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

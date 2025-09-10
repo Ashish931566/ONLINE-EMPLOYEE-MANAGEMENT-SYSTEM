@@ -1,0 +1,31 @@
+<!-- FILE: templates/payslip.html -->
+{% extends "base.html" %}
+{% block content %}
+<h2>Payslip</h2>
+<div class="payslip">
+  <div class="header">
+    <div class="brand">OEMS</div>
+    <div class="period">{{ item.period_start }} – {{ item.period_end }}</div>
+  </div>
+  <div class="row">
+    <div><b>Name:</b> {{ item.name }}</div>
+    <div><b>Position:</b> {{ item.position }}</div>
+  </div>
+  <div class="row">
+    <div><b>Email:</b> {{ item.email }}</div>
+    <div><b>Payroll ID:</b> {{ item.payroll_id }}</div>
+  </div>
+  <table class="table narrow">
+    <thead><tr><th>Basic</th><th>Deductions</th><th>Bonuses</th><th>Net</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>₹ {{ '%.2f'|format(item.basic_salary) }}</td>
+        <td>₹ {{ '%.2f'|format(item.deductions) }}</td>
+        <td>₹ {{ '%.2f'|format(item.bonuses) }}</td>
+        <td><b>₹ {{ '%.2f'|format(item.net_salary) }}</b></td>
+      </tr>
+    </tbody>
+  </table>
+  <button class="btn" onclick="window.print()">Print</button>
+</div>
+{% endblock %}

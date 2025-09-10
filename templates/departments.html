@@ -1,0 +1,35 @@
+<!-- FILE: templates/departments.html -->
+{% extends "base.html" %}
+{% block content %}
+<h2>Departments</h2>
+<div class="grid-2">
+  <div>
+    <h3>Add department</h3>
+    <form method="post" action="{{ url_for('add_department') }}" class="form">
+      <label>Name
+        <input name="department_name" required />
+      </label>
+      <button class="btn primary">Add</button>
+    </form>
+  </div>
+  <div>
+    <h3>All departments</h3>
+    <table class="table">
+      <thead><tr><th>ID</th><th>Name</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for d in items %}
+        <tr>
+          <td>{{ d.department_id }}</td>
+          <td>{{ d.department_name }}</td>
+          <td>
+            <form method="post" action="{{ url_for('delete_department', dept_id=d.department_id) }}" onsubmit="return confirm('Delete department?')">
+              <button class="btn danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

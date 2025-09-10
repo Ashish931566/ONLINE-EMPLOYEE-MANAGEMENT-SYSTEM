@@ -1,0 +1,82 @@
+-- FILE: schema.sql
+
+-- 1) Create database
+CREATE DATABASE IF NOT EXISTS oems CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE oems;
+
+-- 2) Core tables
+CREATE TABLE departments (
+  department_id INT AUTO_INCREMENT PRIMARY KEY,
+  department_name VARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE employees (
+  employee_id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120) NOT NULL,
+  email VARCHAR(120) NOT NULL UNIQUE,
+  phone VARCHAR(20),
+  position VARCHAR(80),
+  department_id INT,
+  salary DECIMAL(10,2) DEFAULT 0,
+  FOREIGN KEY (department_id) REFERENCES departments(department_id) ON DELETE SET NULL
+);
+
+CREATE TABLE users (
+  user_id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(80) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('ADMIN','HR','EMPLOYEE') NOT NULL,
+  employee_id INT NULL,
+  FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE SET NULL
+);
+
+CREATE TABLE attendance (
+  attendance_id INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id INT NOT NULL,
+  date DATE NOT NULL,
+  status ENUM('Present','Absent','Leave') NOT NULL DEFAULT 'Present',
+  UNIQUE KEY uniq_emp_date (employee_id, date),
+  FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE CASCADE
+);
+
+CREATE TABLE leave_requests (
+  leave_id INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id INT NOT NULL,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  status ENUM('Pending','Approved','Rejected') NOT NULL DEFAULT 'Pending',
+  FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE CASCADE
+);
+
+CREATE TABLE payroll (
+  payroll_id INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id INT NOT NULL,
+  period_start DATE NOT NULL,
+  period_end DATE NOT NULL,
+  basic_salary DECIMAL(10,2) NOT NULL,
+  deductions DECIMAL(10,2) NOT NULL DEFAULT 0,
+  bonuses DECIMAL(10,2) NOT NULL DEFAULT 0,
+  net_salary DECIMAL(10,2) NOT NULL,
+  UNIQUE KEY uniq_emp_period (employee_id, period_start, period_end),
+  FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE CASCADE
+);
+
+-- 3) Seed departments
+INSERT INTO departments (department_name) VALUES
+('HR'), ('Engineering'), ('Finance'), ('Sales')
+ON DUPLICATE KEY UPDATE department_name=VALUES(department_name);
+
+-- 4) Seed employees
+INSERT INTO employees (name, email, phone, position, department_id, salary) VALUES
+('Rakesh Kumar', 'rakesh.hr@demo.com', '9990001111', 'HR Manager', (SELECT department_id FROM departments WHERE department_name='HR'), 60000),
+('Ashish', 'ashish.emp@demo.com', '9315660860', 'Software Engineer', (SELECT department_id FROM departments WHERE department_name='Engineering'), 50000)
+ON DUPLICATE KEY UPDATE phone=VALUES(phone), position=VALUES(position), department_id=VALUES(department_id), salary=VALUES(salary);
+
+-- 5) Seed users (passwords below are plain text hints; you’ll set real hashes via app.py init)
+-- admin/admin123, hr/hr123, ashish/ashish123
+-- Placeholders; app.py has a utility route to (re)hash these if missing.
+INSERT INTO users (username, password_hash, role, employee_id) VALUES
+('admin', '$2b$12$placeholderplaceholderplaceholderplaceholderplaceholderplace', 'ADMIN', NULL),
+('hr', '$2b$12$placeholderplaceholderplaceholderplaceholderplaceholderplace', 'HR', (SELECT employee_id FROM employees WHERE email='rakesh.hr@demo.com')),
+('ashish', '$2b$12$placeholderplaceholderplaceholderplaceholderplaceholderplace', 'EMPLOYEE', (SELECT employee_id FROM employees WHERE email='ashish.emp@demo.com'))
+ON DUPLICATE KEY UPDATE role=VALUES(role), employee_id=VALUES(employee_id);

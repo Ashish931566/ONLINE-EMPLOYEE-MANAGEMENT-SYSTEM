@@ -1,0 +1,50 @@
+<!-- FILE: templates/payroll.html -->
+{% extends "base.html" %}
+{% block content %}
+<h2>Payroll</h2>
+<div class="grid-2">
+  {% if emps %}
+  <div>
+    <h3>Generate payroll</h3>
+    <form method="post" class="form">
+      <label>Employee
+        <select name="employee_id" required>
+          {% for e in emps %}
+          <option value="{{ e.employee_id }}">{{ e.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Period start <input type="date" name="period_start" required></label>
+      <label>Period end <input type="date" name="period_end" required></label>
+      <label>Extra deductions <input name="deductions" type="number" step="0.01" value="0"></label>
+      <label>Bonuses <input name="bonuses" type="number" step="0.01" value="0"></label>
+      <button class="btn primary">Generate</button>
+    </form>
+  </div>
+  {% endif %}
+  <div>
+    <h3>Recent payroll</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          {% if emps %}<th>Employee</th>{% endif %}
+          <th>Period</th><th>Basic</th><th>Deduct</th><th>Bonus</th><th>Net</th><th>Payslip</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in items %}
+        <tr>
+          {% if p.name is defined %}<td>{{ p.name }}</td>{% endif %}
+          <td>{{ p.period_start }} — {{ p.period_end }}</td>
+          <td>₹ {{ '%.2f'|format(p.basic_salary) }}</td>
+          <td>₹ {{ '%.2f'|format(p.deductions) }}</td>
+          <td>₹ {{ '%.2f'|format(p.bonuses) }}</td>
+          <td><b>₹ {{ '%.2f'|format(p.net_salary) }}</b></td>
+          <td><a class="btn small" href="{{ url_for('payslip', payroll_id=p.payroll_id) }}">View</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

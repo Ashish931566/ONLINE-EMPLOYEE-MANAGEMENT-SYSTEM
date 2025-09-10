@@ -1,0 +1,23 @@
+<!-- FILE: templates/profile.html -->
+{% extends "base.html" %}
+{% block content %}
+<h2>My profile</h2>
+<div class="grid-2">
+  <div class="panel">
+    <h3>Details</h3>
+    <p><b>Employee ID:</b> {{ emp.employee_id }}</p>
+    <p><b>Email:</b> {{ emp.email }}</p>
+    <p><b>Department:</b> {{ emp.department_name or '-' }}</p>
+    <p><b>Position:</b> {{ emp.position or '-' }}</p>
+    <p><b>Salary:</b> ₹ {{ '%.2f'|format(emp.salary or 0) }}</p>
+  </div>
+  <div>
+    <h3>Update profile</h3>
+    <form method="post" class="form">
+      <label>Name <input name="name" value="{{ emp.name }}" required></label>
+      <label>Phone <input name="phone" value="{{ emp.phone or '' }}"></label>
+      <button class="btn primary">Save</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

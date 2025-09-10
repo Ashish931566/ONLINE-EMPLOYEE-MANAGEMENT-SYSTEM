@@ -1,0 +1,44 @@
+<!-- FILE: templates/leaves.html -->
+{% extends "base.html" %}
+{% block content %}
+<h2>Leaves</h2>
+<div class="grid-2">
+  {% if session.user.role == 'EMPLOYEE' %}
+  <div>
+    <h3>Request leave</h3>
+    <form method="post" class="form">
+      <label>Start date <input name="start_date" type="date" required></label>
+      <label>End date <input name="end_date" type="date" required></label>
+      <button class="btn primary">Submit</button>
+    </form>
+  </div>
+  {% endif %}
+  <div>
+    <h3>All leave requests</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          {% if session.user.role in ['ADMIN','HR'] %}<th>Employee</th>{% endif %}
+          <th>Start</th><th>End</th><th>Status</th><th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for l in leaves %}
+        <tr>
+          {% if l.name is defined %}<td>{{ l.name }}</td>{% endif %}
+          <td>{{ l.start_date }}</td>
+          <td>{{ l.end_date }}</td>
+          <td><span class="badge {{ l.status|lower }}">{{ l.status }}</span></td>
+          <td>
+            {% if session.user.role in ['ADMIN','HR'] and l.status == 'Pending' %}
+            <form method="post" action="{{ url_for('act_leave', leave_id=l.leave_id, action='Approved') }}" class="inline"><button class="btn success">Approve</button></form>
+            <form method="post" action="{{ url_for('act_leave', leave_id=l.leave_id, action='Rejected') }}" class="inline"><button class="btn danger">Reject</button></form>
+            {% else %}-{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

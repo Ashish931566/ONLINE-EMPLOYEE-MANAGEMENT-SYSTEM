@@ -1,0 +1,49 @@
+<!-- FILE: templates/attendance.html -->
+{% extends "base.html" %}
+{% block content %}
+<h2>Attendance</h2>
+<div class="grid-2">
+  <div>
+    <h3>Mark attendance (today)</h3>
+    <form method="post" class="form">
+      {% if emps and session.user.role in ['ADMIN','HR'] %}
+      <label>Employee
+        <select name="employee_id" required>
+          {% for e in emps %}
+          <option value="{{ e.employee_id }}">{{ e.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      {% endif %}
+      <label>Status
+        <select name="status">
+          <option>Present</option>
+          <option>Absent</option>
+          <option>Leave</option>
+        </select>
+      </label>
+      <button class="btn primary">Save</button>
+    </form>
+  </div>
+  <div>
+    <h3>Recent records</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          {% if emps %}<th>Employee</th>{% endif %}
+          <th>Date</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in records %}
+        <tr>
+          {% if r.name is defined %}<td>{{ r.name }}</td>{% endif %}
+          <td>{{ r.date }}</td>
+          <td><span class="badge {{ r.status|lower }}">{{ r.status }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

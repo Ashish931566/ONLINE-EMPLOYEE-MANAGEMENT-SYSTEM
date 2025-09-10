@@ -1,0 +1,21 @@
+<!-- FILE: templates/dashboard.html -->
+{% extends "base.html" %}
+{% block content %}
+<h2>Dashboard</h2>
+<div class="cards">
+  <div class="card"><div class="k">Employees</div><div class="v">{{ stats.employees }}</div></div>
+  <div class="card"><div class="k">Departments</div><div class="v">{{ stats.departments }}</div></div>
+  <div class="card"><div class="k">Pending Leaves</div><div class="v">{{ stats.pending_leaves }}</div></div>
+  {% if role == 'EMPLOYEE' %}
+  <div class="card"><div class="k">Today</div><div class="v">{{ stats.today_status }}</div></div>
+  {% endif %}
+</div>
+
+{% if role == 'EMPLOYEE' and stats.last_payroll %}
+<div class="panel">
+  <h3>Last Payroll</h3>
+  <p><b>Period:</b> {{ stats.last_payroll.period_start }} to {{ stats.last_payroll.period_end }}</p>
+  <p><b>Net Salary:</b> ₹ {{ '%.2f'|format(stats.last_payroll.net_salary) }}</p>
+</div>
+{% endif %}
+{% endblock %}
